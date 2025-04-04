@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react"; 
 import { Link, useLocation } from "react-router-dom";
 import BreadCrumb from "../components/BreadCrumb";
 import { HiOutlineArrowLeft } from "react-icons/hi";
@@ -14,12 +14,16 @@ const SingleBlog = () => {
   const getBlogId = location.pathname.split("/")[2];
 
   const dispatch = useDispatch();
-  useEffect(() => {
-    getblog();
-  }, []);
-  const getblog = () => {
+
+  // Memoize the getblog function
+  const getblog = useCallback(() => {
     dispatch(getABlog(getBlogId));
-  };
+  }, [dispatch, getBlogId]); // Dependencies: dispatch, getBlogId
+
+  useEffect(() => {
+    getblog(); // Call the memoized getblog function
+  }, [getblog]); // Re-run only when getblog changes
+
   return (
     <>
       <Meta title={blogState?.title} />

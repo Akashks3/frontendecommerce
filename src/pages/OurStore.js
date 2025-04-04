@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react"; 
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Container, Grid, Typography, IconButton, Select, MenuItem, FormControl, InputLabel, Slider } from "@mui/material";
-import { AiOutlineCloseCircle } from 'react-icons/ai';
+import { Box, Container, Grid, Typography,  Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import ProductCard from "../components/ProductCard";
 import { getAllProducts } from "../features/products/productSlilce";
 
 const OurStore = () => {
-  const [grid, setGrid] = useState(4);
+  const [grid, ] = useState(4);
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
@@ -24,9 +23,14 @@ const OurStore = () => {
 
   const dispatch = useDispatch();
 
+  // Use useCallback to memoize the getProducts function
+  const getProducts = useCallback(() => {
+    dispatch(getAllProducts({ sort, tag, brand, category, minPrice, maxPrice }));
+  }, [dispatch, sort, tag, brand, category, minPrice, maxPrice]);
+
   useEffect(() => {
     getProducts();
-  }, [sort, tag, brand, category, minPrice, maxPrice]);
+  }, [getProducts]);  // Now using the memoized getProducts function as a dependency
 
   useEffect(() => {
     let newBrands = [];
@@ -44,10 +48,6 @@ const OurStore = () => {
     setCategories(categoryList);
     setTags(newTags);
   }, [productState]);
-
-  const getProducts = () => {
-    dispatch(getAllProducts({ sort, tag, brand, category, minPrice, maxPrice }));
-  };
 
   return (
     <>
@@ -163,13 +163,8 @@ const OurStore = () => {
                 </FormControl>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Typography variant="body2" sx={{ marginRight: 2 }}>{productState?.length} Products</Typography>
                 <Box sx={{ display: "flex", gap: 1 }}>
-                  <IconButton onClick={() => setGrid(3)}><img src="images/gr4.svg" alt="grid" /></IconButton>
-                  <IconButton onClick={() => setGrid(4)}><img src="images/gr3.svg" alt="grid" /></IconButton>
-                  <IconButton onClick={() => setGrid(6)}><img src="images/gr2.svg" alt="grid" /></IconButton>
-                  <IconButton onClick={() => setGrid(12)}><img src="images/gr.svg" alt="grid" /></IconButton>
-                </Box>
+             </Box>
               </Box>
             </Box>
 

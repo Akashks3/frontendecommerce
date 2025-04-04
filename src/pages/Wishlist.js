@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react"; 
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Container, Grid, Typography, IconButton, Card, CardContent, CardMedia } from '@mui/material';
+import { Container, Grid, Typography, IconButton, Card, CardContent, CardMedia } from '@mui/material';
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
@@ -10,13 +10,15 @@ import { getuserProductWishlist } from "../features/user/userSlice";
 const Wishlist = () => {
   const dispatch = useDispatch();
 
+  
+  const getWishlistFromDb = useCallback(() => {
+    dispatch(getuserProductWishlist());
+  }, [dispatch]);
+
+  
   useEffect(() => {
     getWishlistFromDb();
-  }, []);
-
-  const getWishlistFromDb = () => {
-    dispatch(getuserProductWishlist());
-  };
+  }, [getWishlistFromDb]);
 
   const wishlistState = useSelector((state) => state?.auth?.wishlist?.wishlist);
 

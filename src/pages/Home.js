@@ -1,17 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react"; 
 import { useNavigate } from "react-router-dom";
 import BlogCard from "../components/BlogCard";
-
-import SpecialProduct from "../components/SpecialProduct";
 import Container from "../components/Container";
-
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBlogs } from "../features/blogs/blogSlice";
 import moment from "moment";
-import { getAllProducts, addToWishlist } from "../features/products/productSlilce";
+import { getAllProducts} from "../features/products/productSlilce";
 import ReactStars from "react-rating-stars-component";
-import {  AiOutlineHeart } from "react-icons/ai";
-import { Box, Grid, Typography, Button, Card, CardContent, CardMedia, IconButton } from "@mui/material";
+import { Box, Grid, Typography, Card, CardContent, CardMedia } from "@mui/material";
 
 const Home = () => {
   const blogState = useSelector((state) => state?.blog?.blog);
@@ -20,26 +16,23 @@ const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const getblogs = useCallback(() => {
+    dispatch(getAllBlogs());
+  }, [dispatch]);
+
+  const getProducts = useCallback(() => {
+    dispatch(getAllProducts());
+  }, [dispatch]);
+
   useEffect(() => {
     getblogs();
     getProducts();
-  }, []);
-  
-  const getblogs = () => {
-    dispatch(getAllBlogs());
-  };
+  }, [getblogs, getProducts]);
 
-  const getProducts = () => {
-    dispatch(getAllProducts());
-  };
 
-  const addToWish = (id) => {
-    dispatch(addToWishlist(id));
-  };
 
   return (
     <>
-     
       <Container class1="featured-wrapper py-5 home-wrapper-2">
         <Typography variant="h5" align="center" gutterBottom>
           Recent Collection
@@ -70,16 +63,15 @@ const Home = () => {
                       <Typography variant="h5">Rs. {item?.price}</Typography>
                     </CardContent>
                     <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
-                     
                     </Box>
                   </Card>
                 </Grid>
               );
             }
+            return null;
           })}
         </Grid>
       </Container>
-
 
       <Container class1="blog-wrapper py-5 home-wrapper-2">
         <Typography variant="h5" align="center" gutterBottom>
@@ -100,6 +92,7 @@ const Home = () => {
                 </Grid>
               );
             }
+            return null;
           })}
         </Grid>
       </Container>

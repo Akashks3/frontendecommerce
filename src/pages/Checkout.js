@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react"; 
 import { Link, useNavigate } from "react-router-dom";
-import { BiArrowBack } from "react-icons/bi";
 import Container from "../components/Container";
 import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
@@ -14,7 +13,7 @@ import {
   resetState,
 } from "../features/user/userSlice";
 
-
+// Geolocation Schema
 let shippingSchema = yup.object({
   firstname: yup.string().required("First Name is Required"),
   lastname: yup.string().required("Last Name is Required"),
@@ -30,14 +29,26 @@ const Checkout = () => {
   const cartState = useSelector((state) => state?.auth?.cartProducts);
   const authState = useSelector((state) => state?.auth);
   const [totalAmount, setTotalAmount] = useState(null);
-  const [setShippingInfo] = useState(null);
+  const [shippingInfo, setShippingInfo] = useState(null);
   const navigate = useNavigate();
-  const [userLocation, setUserLocation] = useState({
+  const [userLocation] = useState({
     city: "",
     state: "",
     country: "India", 
   });
 
+  const config2 = useMemo(() => {
+    const getTokenFromLocalStorage = localStorage.getItem("customer")
+      ? JSON.parse(localStorage.getItem("customer"))
+      : null;
+
+    return {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage !== null ? getTokenFromLocalStorage.token : ""}`,
+        Accept: "application/json",
+      },
+    };
+  }, []); 
 
   useEffect(() => {
     let sum = 0;
@@ -47,53 +58,9 @@ const Checkout = () => {
     }
   }, [cartState]);
 
-  
-  const getUserCurrentLocation = async () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-
-      
-        const res = await axios.get(
-          `https://www.google.co.in/maps/@12.9959571,79.8072583,14z?entry=ttu&g_ep=EgoyMDI1MDQwMS4wIKXMDSoASAFQAw%3D%3D`
-        );
-
-        if (res.data.results.length > 0) {
-          const addressComponents = res.data.results[0].address_components;
-          const city =
-            addressComponents.find((comp) => comp.types.includes("locality"))
-              ?.long_name || "";
-          const state =
-            addressComponents.find((comp) =>
-              comp.types.includes("administrative_area_level_1")
-            )?.long_name || "";
-          setUserLocation({ ...userLocation, city, state });
-        }
-      });
-    } else {
-      alert("Geolocation is not supported by this browser.");
-    }
-  };
-
-  useEffect(() => {
-    getUserCurrentLocation();
-  }, [ ]);
-
-  const getTokenFromLocalStorage = localStorage.getItem("customer")
-    ? JSON.parse(localStorage.getItem("customer"))
-    : null;
-
-  const config2 = {
-    headers: {
-      Authorization: `Bearer ${
-        getTokenFromLocalStorage !== null ? getTokenFromLocalStorage.token : ""
-      }`,
-      Accept: "application/json",
-    },
-  };
-
   useEffect(() => {
     dispatch(getUserCart(config2));
-  }, []);
+  }, [dispatch, config2]);
 
   useEffect(() => {
     if (
@@ -102,7 +69,7 @@ const Checkout = () => {
     ) {
       navigate("/my-orders");
     }
-  }, [authState]);
+  }, [authState, navigate]);
 
   const [cartProductState, setCartProductState] = useState([]);
 
@@ -111,21 +78,22 @@ const Checkout = () => {
       firstname: "",
       lastname: "",
       address: "",
-      state: userLocation.state, 
-      city: userLocation.city, 
-      country: userLocation.country, 
+      state: userLocation.state,
+      city: userLocation.city,
+      country: userLocation.country,
       pincode: "",
       other: "",
     },
     validationSchema: shippingSchema,
     onSubmit: (values) => {
-      setShippingInfo(values);
+      setShippingInfo(values); 
       localStorage.setItem("address", JSON.stringify(values));
       setTimeout(() => {
         checkOutHandler();
       }, 300);
     },
   });
+  console.log(shippingInfo)
 
   const loadScript = (src) => {
     return new Promise((resolve) => {
@@ -152,7 +120,7 @@ const Checkout = () => {
       });
     }
     setCartProductState(items);
-  }, []);
+  }, [cartState]);
 
   const checkOutHandler = async () => {
     const res = await loadScript(
@@ -216,7 +184,7 @@ const Checkout = () => {
         contact: "9999999999",
       },
       notes: {
-        address: "developer's corner office",
+        address: "office",
       },
       theme: {
         color: "#61dafb",
@@ -276,7 +244,7 @@ const Checkout = () => {
                   onChange={formik.handleChange("country")}
                   onBlur={formik.handleBlur("country")}
                 >
-                  <option value="" selected disabled>
+                  <option value="" disabled>
                     Select Country
                   </option>
                   <option value="India">India</option>
@@ -353,14 +321,14 @@ const Checkout = () => {
                 </div>
               </div>
               <div className="flex-grow-1">
-                <select
+              <select
                   className="form-control form-select"
                   name="state"
                   value={formik.values.state || userLocation.state}
                   onChange={formik.handleChange("state")}
                   onBlur={formik.handleBlur("state")}
                 >
-                  <option value="" selected disabled>
+                  <option value="" disabled>
                     Select State
                   </option>
                   <option value="Gujarat">Gujarat</option>
@@ -407,9 +375,9 @@ const Checkout = () => {
                   {formik.touched.state && formik.errors.state}
                 </div>
               </div>
-              <div className="flex-grow-1">
+              <div className="w-100">
                 <input
-                  type="text"
+                  type="number"
                   placeholder="Pincode"
                   className="form-control"
                   name="pincode"
@@ -422,24 +390,15 @@ const Checkout = () => {
                 </div>
               </div>
               <div className="w-100">
-                <div className="d-flex justify-content-between align-items-center">
-                  <Link to="/cart" className="text-dark">
-                    <BiArrowBack className="me-2" />
-                    Return to Cart
-                  </Link>
-                  <Link to="/cart" className="button">
-                    Continue to Shipping
-                  </Link>
-                  <button className="button" type="submit">
-                    Place Order
-                  </button>
-                </div>
+                <button className="button" type="submit">
+                  Continue to Payment
+                </button>
               </div>
             </form>
           </div>
         </div>
-        {/* Cart Items Section */}
-        <div className="col-5">
+      </div>
+      <div className="col-5">
           <div className="border-bottom py-4">
             {cartState &&
               cartState?.map((item, index) => {
@@ -498,7 +457,6 @@ const Checkout = () => {
             </h5>
           </div>
         </div>
-      </div>
     </Container>
   );
 };

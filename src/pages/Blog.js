@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import BlogCard from "../components/BlogCard";
@@ -9,14 +9,16 @@ import moment from "moment";
 
 const Blog = () => {
   const blogState = useSelector((state) => state?.blog?.blog);
-
   const dispatch = useDispatch();
+
+  // Memoize the getblogs function to prevent re-creation on each render
+  const getblogs = useCallback(() => {
+    dispatch(getAllBlogs());
+  }, [dispatch]);
+
   useEffect(() => {
     getblogs();
-  }, []);
-  const getblogs = () => {
-    dispatch(getAllBlogs());
-  };
+  }, [getblogs]); // Now we include getblogs as a dependency
 
   return (
     <>

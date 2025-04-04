@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
-import { Link, useNavigate } from "react-router-dom";
 import Container from "../components/Container";
 import CustomInput from "../components/CustomInput";
 import { useFormik } from "formik";
@@ -23,7 +22,6 @@ let signUpSchema = yup.object({
 const Signup = () => {
   const authState = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
       firstname: "",

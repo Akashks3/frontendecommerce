@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react"; 
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import { AiFillDelete } from "react-icons/ai";
@@ -12,14 +12,13 @@ const Cart = () => {
     ? JSON.parse(localStorage.getItem("customer"))
     : null;
 
-  const config2 = {
+  // Use useMemo to memoize the config2 object
+  const config2 = useMemo(() => ({
     headers: {
-      Authorization: `Bearer ${
-        getTokenFromLocalStorage !== null ? getTokenFromLocalStorage.token : ""
-      }`,
+      Authorization: `Bearer ${getTokenFromLocalStorage ? getTokenFromLocalStorage.token : ""}`,
       Accept: "application/json",
     },
-  };
+  }), [getTokenFromLocalStorage]);  // Only re-create config2 if getTokenFromLocalStorage changes
 
   const dispatch = useDispatch();
   const [productupdateDetail, setProductupdateDetail] = useState(null);
@@ -28,7 +27,7 @@ const Cart = () => {
 
   useEffect(() => {
     dispatch(getUserCart(config2));
-  }, []);
+  }, [dispatch, config2]); // config2 is now stable due to useMemo
 
   useEffect(() => {
     if (productupdateDetail !== null) {
@@ -40,7 +39,7 @@ const Cart = () => {
         dispatch(getUserCart(config2));
       }, 200);
     }
-  }, [productupdateDetail]);
+  }, [productupdateDetail, dispatch, config2]); // config2 is now stable due to useMemo
 
   const deleteACartProduct = (id) => {
     dispatch(deleteCartProduct({ id, config2 }));
@@ -74,14 +73,19 @@ const Cart = () => {
               <div key={index} className="cart-data py-3 mb-2 d-flex justify-content-between align-items-center">
                 <div className="cart-col-1 gap-15 d-flex align-items-center">
                   <div className="w-25">
-                    <img src={item?.productId.images[0].url} className="img-fluid" alt="product image" />
+                    {/* Ensure the productId and images array exist */}
+                    <img
+                      src={item?.productId?.images && item?.productId?.images.length > 0 ? item?.productId?.images[0].url : 'default-image.jpg'} 
+                      className="img-fluid" 
+                      alt={item?.productId?.title || 'Product image'}
+                    />
                   </div>
                   <div className="w-75">
-                    <p>{item?.productId.title}</p>
+                    <p>{item?.productId?.title}</p>
                     <p className="d-flex gap-3">
                       Color:
                       <ul className="colors ps-0">
-                        <li style={{ backgroundColor: item?.color.title }}></li>
+                        <li style={{ backgroundColor: item?.color?.title }}></li>
                       </ul>
                     </p>
                   </div>

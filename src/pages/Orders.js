@@ -4,7 +4,6 @@ import Container from "../components/Container";
 import BreadCrumb from "../components/BreadCrumb";
 import { getOrders } from "../features/user/userSlice";
 import {
-
   CircularProgress,
   Box,
   Table,
@@ -14,39 +13,41 @@ import {
   TableHead,
   TableRow,
   Paper,
-
 } from "@mui/material";
-
 
 const Orders = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
 
-  const orderState = useSelector((state) => state?.auth?.getorderedProduct?.orders);
+  const orderState = useSelector(
+    (state) => state?.auth?.getorderedProduct?.orders
+  );
 
-  
   const getTokenFromLocalStorage = useMemo(() => {
     const tokenData = localStorage.getItem("customer");
     return tokenData ? JSON.parse(tokenData) : null;
   }, []);
 
-  const config2 = {
-    headers: {
-      Authorization: `Bearer ${getTokenFromLocalStorage?.token || ""}`,
-      Accept: "application/json",
-    },
-  };
-
   useEffect(() => {
     if (getTokenFromLocalStorage) {
+      const config2 = {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage?.token || ""}`,
+          Accept: "application/json",
+        },
+      };
       dispatch(getOrders(config2)).finally(() => setLoading(false));
     } else {
-      setLoading(false); 
+      setLoading(false);
     }
-  }, [dispatch, getTokenFromLocalStorage]);
+  }, [dispatch, getTokenFromLocalStorage]); // Only use dependencies that are necessary
 
   if (loading) {
-    return <CircularProgress sx={{ display: "block", margin: "auto", marginTop: "20px" }} />;
+    return (
+      <CircularProgress
+        sx={{ display: "block", margin: "auto", marginTop: "20px" }}
+      />
+    );
   }
 
   return (
@@ -72,24 +73,48 @@ const Orders = () => {
                   <TableCell>{item?.totalPriceAfterDiscount}</TableCell>
                   <TableCell>{item?.orderStatus}</TableCell>
                   <TableCell>
-                    <Box sx={{ backgroundColor: "#232f3e", padding: 2, borderRadius: 2 }}>
+                    <Box
+                      sx={{
+                        backgroundColor: "#232f3e",
+                        padding: 2,
+                        borderRadius: 2,
+                      }}
+                    >
                       <Table>
                         <TableHead>
                           <TableRow>
-                            <TableCell className="text-white">Product Name</TableCell>
-                            <TableCell className="text-white">Quantity</TableCell>
+                            <TableCell className="text-white">
+                              Product Name
+                            </TableCell>
+                            <TableCell className="text-white">
+                              Quantity
+                            </TableCell>
                             <TableCell className="text-white">Price</TableCell>
                             <TableCell className="text-white">Color</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
                           {item?.orderItems?.map((i) => (
-                            <TableRow key={i?.product?.title}>
-                              <TableCell className="text-white">{i?.product?.title}</TableCell>
-                              <TableCell className="text-white">{i?.quantity}</TableCell>
-                              <TableCell className="text-white">{i?.price}</TableCell>
+                            <TableRow key={i?.product?._id + i?.product?.title}>
+                              {" "}
+                              {/* Updated to a more unique key */}
+                              <TableCell className="text-white">
+                                {i?.product?.title}
+                              </TableCell>
+                              <TableCell className="text-white">
+                                {i?.quantity}
+                              </TableCell>
+                              <TableCell className="text-white">
+                                {i?.price}
+                              </TableCell>
                               <TableCell>
-                                <Box sx={{ width: 20, height: 20, backgroundColor: i?.color?.title }} />
+                                <Box
+                                  sx={{
+                                    width: 20,
+                                    height: 20,
+                                    backgroundColor: i?.color?.title,
+                                  }}
+                                />
                               </TableCell>
                             </TableRow>
                           ))}

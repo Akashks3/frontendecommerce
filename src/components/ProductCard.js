@@ -44,7 +44,7 @@ const ProductCard = (props) => {
           <div
             key={index}
             className={`${
-              location.pathname == "/product" ? `gr-${grid}` : "col-3"
+              location.pathname === "/product" ? `gr-${grid}` : "col-3"
             } `}
           >
             <Card sx={{ display: "flex", flexDirection: "column", height: "100%" }}>

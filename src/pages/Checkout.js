@@ -14,7 +14,7 @@ import {
   resetState,
 } from "../features/user/userSlice";
 
-// Geolocation Schema
+
 let shippingSchema = yup.object({
   firstname: yup.string().required("First Name is Required"),
   lastname: yup.string().required("Last Name is Required"),
@@ -30,19 +30,15 @@ const Checkout = () => {
   const cartState = useSelector((state) => state?.auth?.cartProducts);
   const authState = useSelector((state) => state?.auth);
   const [totalAmount, setTotalAmount] = useState(null);
-  const [shippingInfo, setShippingInfo] = useState(null);
-  const [paymentInfo, setPaymentInfo] = useState({
-    razorpayPaymentId: "",
-    razorpayOrderId: "",
-  });
+  const [setShippingInfo] = useState(null);
   const navigate = useNavigate();
   const [userLocation, setUserLocation] = useState({
     city: "",
     state: "",
-    country: "India", // Default country
+    country: "India", 
   });
 
-  // Get total amount for the order
+
   useEffect(() => {
     let sum = 0;
     for (let index = 0; index < cartState?.length; index++) {
@@ -51,13 +47,12 @@ const Checkout = () => {
     }
   }, [cartState]);
 
-  // Geolocation function to get current location
+  
   const getUserCurrentLocation = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async (position) => {
-        const { latitude, longitude } = position.coords;
 
-        // You can use a geocoding API here like Google Maps API to get the address based on coordinates
+      
         const res = await axios.get(
           `https://www.google.co.in/maps/@12.9959571,79.8072583,14z?entry=ttu&g_ep=EgoyMDI1MDQwMS4wIKXMDSoASAFQAw%3D%3D`
         );
@@ -79,10 +74,9 @@ const Checkout = () => {
     }
   };
 
-  // Run geolocation when the component mounts
   useEffect(() => {
     getUserCurrentLocation();
-  }, []);
+  }, [ ]);
 
   const getTokenFromLocalStorage = localStorage.getItem("customer")
     ? JSON.parse(localStorage.getItem("customer"))
@@ -117,9 +111,9 @@ const Checkout = () => {
       firstname: "",
       lastname: "",
       address: "",
-      state: userLocation.state, // Prefill state from geolocation
-      city: userLocation.city, // Prefill city from geolocation
-      country: userLocation.country, // Prefill country
+      state: userLocation.state, 
+      city: userLocation.city, 
+      country: userLocation.country, 
       pincode: "",
       other: "",
     },

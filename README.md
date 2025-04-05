@@ -1,7 +1,7 @@
 ## E-commerce Application ## 
  MERN E-Commerce Website! This project is a real-time e-commerce application built using the  MERN stack, complete with a store and  admin dashboard.
  
- demo live: http://localhost:3000 
+ demo live: https://aquamarine-heliotrope-67f61f.netlify.app/
 
 ## Features ##
 
